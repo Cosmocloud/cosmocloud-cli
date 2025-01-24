@@ -6,7 +6,7 @@ import click
 import requests
 
 # Constants
-API_BASE_URL = "http://groot-staging.cosmocloud.io"
+API_BASE_URL = "https://groot-production.cosmocloud.io"
 TOKEN_FILE = os.path.expanduser("~/.cosmocloud_token")
 
 
@@ -68,8 +68,8 @@ def cli():
 
 
 @click.command()
-@click.option("--username", prompt=True, help="Your Cognito username")
-@click.option("--password", prompt=True, hide_input=True, help="Your Cognito password")
+@click.option("--username", prompt=True, help="Your Cosmocloud username")
+@click.option("--password", prompt=True, hide_input=True, help="Your Cosmocloud password")
 def login(username, password):
     """
     Log in with your user.
