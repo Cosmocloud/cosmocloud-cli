@@ -69,7 +69,9 @@ def cli():
 
 @click.command()
 @click.option("--username", prompt=True, help="Your Cosmocloud username")
-@click.option("--password", prompt=True, hide_input=True, help="Your Cosmocloud password")
+@click.option(
+    "--password", prompt=True, hide_input=True, help="Your Cosmocloud password"
+)
 def login(username, password):
     """
     Log in with your user.
@@ -92,7 +94,7 @@ def get_entity(entity_list, entity_name):
 
     org_id = ""
     for org in entity_list:
-        if org["name"].lower() == entity_name:
+        if org["name"].lower() == entity_name.lower():
             org_id = org["id"]
             break
 

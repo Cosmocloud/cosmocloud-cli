@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cosmocloud"
+version = "0.0.1"
+authors = [
+    { name="Shrey Batra", email="contact@cosmocloud.io" },
+]
+description = "Cosmocloud CLI to interact with Cosmocloud Deploy platform using comand line and in CI/CD pipelines."
+requires-python = ">=3.12"
+classifiers = [
+        "Programming Language :: Python :: 3",
+        "Operating System :: OS Independent",
+]
+license = {text = "GPL-3.0-or-later"}
+dependencies = [
+        'requests==2.32.3',
+        'click==8.1.8',
+        'importlib-metadata; python_version>="3.12"',
+]
+
+[project.urls]
+Homepage = "https://github.com/cosmocloud/cosmocloud-cli"
+Issues = "https://github.com/cosmocloud/cosmocloud-cli/issues"
+
+[project.scripts]
+cosmocloud = "cosmocloud.main:cli"
