@@ -33,27 +33,31 @@ def load_tokens():
 
 
 # Call API with token
-def call_api(endpoint: str, method: str, data: dict):
+def call_api(endpoint: str, method: str, data: dict, public: bool = False):
     """
     Call Cosmocloud API with token.
     """
 
-    tokens = load_tokens()
-    if not tokens:
-        click.echo("Please log in first.")
-        sys.exit(1)
+    headers = {}
+    if not public:
+        tokens = load_tokens()
+        if not tokens:
+            click.echo("Please log in first.")
+            sys.exit(1)
+        headers = {"Authorization": f"Bearer {tokens['IdToken']}"}
 
-    headers = {"Authorization": f"Bearer {tokens['IdToken']}"}
     response = requests.request(
         method, f"{API_BASE_URL}{endpoint}", headers=headers, json=data, timeout=5
     )
 
     if response.status_code == 401:
-        click.echo("Session expired. Please log in again.")
+        click.echo(
+            "Session expired or invalid credentials. Please try logging in again."
+        )
         sys.exit(1)
 
     if int(response.status_code / 100) != 2:
-        click.echo(f"Error: {response.text}")
+        click.echo("Couldn't connect to Cosmocloud Deploy. Please try again later.")
         sys.exit(1)
 
     return response.json()
@@ -81,8 +85,12 @@ def login(username, password):
     """
 
     tokens = call_api(
-        "/auth", "POST", data={"username": username, "password": password}
+        endpoint="/auth",
+        method="POST",
+        data={"username": username, "password": password},
+        public=True,
     )
+
     save_tokens(tokens)
     click.echo("Login successful!")
 
