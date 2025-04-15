@@ -33,7 +33,13 @@ def load_tokens():
 
 
 # Call API with token
-def call_api(endpoint: str, method: str, data: dict, public: bool = False):
+def call_api(
+    endpoint: str,
+    method: str,
+    data: dict,
+    server_url: str,
+    public: bool = False,
+):
     """
     Call Cosmocloud API with token.
     """
@@ -47,7 +53,7 @@ def call_api(endpoint: str, method: str, data: dict, public: bool = False):
         headers = {"Authorization": f"Bearer {tokens['IdToken']}"}
 
     response = requests.request(
-        method, f"{API_BASE_URL}{endpoint}", headers=headers, json=data, timeout=5
+        method, f"{server_url}{endpoint}", headers=headers, json=data, timeout=5
     )
 
     if response.status_code == 401:
@@ -76,7 +82,15 @@ def cli():
 @click.option(
     "--password", prompt=True, hide_input=True, help="Your Cosmocloud password"
 )
-def login(username, password):
+@click.option(
+    "-s",
+    "--server-url",
+    prompt=True,
+    help="Your Cosmocloud server URL",
+    prompt_required=False,
+    default=API_BASE_URL,
+)
+def login(username, password, server_url):
     """
     Log in with your user.
 
@@ -85,6 +99,7 @@ def login(username, password):
     """
 
     tokens = call_api(
+        server_url=server_url,
         endpoint="/auth",
         method="POST",
         data={"username": username, "password": password},
@@ -114,12 +129,20 @@ def get_entity(entity_list, entity_name):
 
 
 @click.command()
-def list_organisations():
+@click.option(
+    "-s",
+    "--server-url",
+    prompt=True,
+    help="Your Cosmocloud server URL",
+    prompt_required=False,
+    default=API_BASE_URL,
+)
+def list_organisations(server_url):
     """
     List all organisations.
     """
 
-    response = call_api("/orgs?limit=1000", "GET", data={})
+    response = call_api("/orgs?limit=1000", "GET", data={}, server_url=server_url)
 
     for org in response["data"]:
         click.echo(f"{org['name']}: {org['status']}")
@@ -127,15 +150,25 @@ def list_organisations():
 
 @click.command()
 @click.option("-o", "--organisation", prompt=True, help="Your organisation name")
-def list_app_services(organisation):
+@click.option(
+    "-s",
+    "--server-url",
+    prompt=True,
+    help="Your Cosmocloud server URL",
+    prompt_required=False,
+    default=API_BASE_URL,
+)
+def list_app_services(organisation, server_url):
     """
     List all app services.
     """
 
-    response = call_api("/orgs?limit=1000", "GET", data={})
+    response = call_api("/orgs?limit=1000", "GET", data={}, server_url=server_url)
     org_id = get_entity(response["data"], organisation)
 
-    response = call_api(f"/orgs/{org_id}/app-services", "GET", data={})
+    response = call_api(
+        f"/orgs/{org_id}/app-services", "GET", data={}, server_url=server_url
+    )
     for app_service in response["data"]:
         click.echo(f"{app_service['name']}: {app_service['status']}")
 
@@ -143,21 +176,32 @@ def list_app_services(organisation):
 @click.command()
 @click.option("-o", "--organisation", prompt=True, help="Your organisation name")
 @click.option("-a", "--app-service", prompt=True, help="Your app service name")
-def list_releases(organisation, app_service):
+@click.option(
+    "-s",
+    "--server-url",
+    prompt=True,
+    help="Your Cosmocloud server URL",
+    prompt_required=False,
+    default=API_BASE_URL,
+)
+def list_releases(organisation, app_service, server_url):
     """
     List all releases.
     """
 
-    response = call_api("/orgs?limit=1000", "GET", data={})
+    response = call_api("/orgs?limit=1000", "GET", data={}, server_url=server_url)
     org_id = get_entity(response["data"], organisation)
 
-    response = call_api(f"/orgs/{org_id}/app-services", "GET", data={})
+    response = call_api(
+        f"/orgs/{org_id}/app-services", "GET", data={}, server_url=server_url
+    )
     app_service_id = get_entity(response["data"], app_service)
 
     response = call_api(
         f"/orgs/{org_id}/app-services/{app_service_id}/releases?limit=1000",
         "GET",
         data={},
+        server_url=server_url,
     )
 
     for release_obj in response["data"]:
@@ -170,6 +214,14 @@ def list_releases(organisation, app_service):
 @click.command()
 @click.option("-o", "--organisation", prompt=True, help="Your organisation name")
 @click.option(
+    "-s",
+    "--server-url",
+    prompt=True,
+    help="Your Cosmocloud server URL",
+    prompt_required=False,
+    default=API_BASE_URL,
+)
+@click.option(
     "-a",
     "--app-service",
     prompt=True,
@@ -177,24 +229,29 @@ def list_releases(organisation, app_service):
 )
 @click.option("-v", "--version", prompt=True, help="Version to release")
 @click.option("-e", "--environment", prompt=True, help="Your environment name")
-def release(organisation, app_service, version, environment):
+def release(organisation, app_service, version, environment, server_url):
     """
     Release a new version for your app service.
     """
 
-    response = call_api("/orgs?limit=1000", "GET", data={})
+    response = call_api("/orgs?limit=1000", "GET", data={}, server_url=server_url)
     org_id = get_entity(response["data"], organisation)
 
-    response = call_api(f"/orgs/{org_id}/app-services", "GET", data={})
+    response = call_api(
+        f"/orgs/{org_id}/app-services", "GET", data={}, server_url=server_url
+    )
     app_service_id = get_entity(response["data"], app_service)
 
-    response = call_api(f"/orgs/{org_id}/envs?limit=1000", "GET", data={})
+    response = call_api(
+        f"/orgs/{org_id}/envs?limit=1000", "GET", data={}, server_url=server_url
+    )
     env_id = get_entity(response["data"], environment)
 
     response = call_api(
         f"/orgs/{org_id}/app-services/{app_service_id}/releases",
         "POST",
         data={"environment_id": env_id, "version": version},
+        server_url=server_url,
     )
     click.echo(response["message"])
 
@@ -209,24 +266,37 @@ def release(organisation, app_service, version, environment):
 )
 @click.option("-v", "--version", prompt=True, help="Version to release")
 @click.option("-e", "--environment", prompt=True, help="Your environment name")
-def promote(organisation, app_service, version, environment):
+@click.option(
+    "-s",
+    "--server-url",
+    prompt=True,
+    help="Your Cosmocloud server URL",
+    prompt_required=False,
+    default=API_BASE_URL,
+)
+def promote(organisation, app_service, version, environment, server_url):
     """
     Promote an existing version for your app service.
     """
 
-    response = call_api("/orgs?limit=1000", "GET", data={})
+    response = call_api("/orgs?limit=1000", "GET", data={}, server_url=server_url)
     org_id = get_entity(response["data"], organisation)
 
-    response = call_api(f"/orgs/{org_id}/app-services", "GET", data={})
+    response = call_api(
+        f"/orgs/{org_id}/app-services", "GET", data={}, server_url=server_url
+    )
     app_service_id = get_entity(response["data"], app_service)
 
-    response = call_api(f"/orgs/{org_id}/envs?limit=1000", "GET", data={})
+    response = call_api(
+        f"/orgs/{org_id}/envs?limit=1000", "GET", data={}, server_url=server_url
+    )
     env_id = get_entity(response["data"], environment)
 
     response = call_api(
         f"/orgs/{org_id}/app-services/{app_service_id}/releases/promote",
         "POST",
         data={"environment_id": env_id, "version": version},
+        server_url=server_url,
     )
     click.echo(response["message"])
 
