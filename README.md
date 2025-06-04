@@ -99,6 +99,14 @@ cosmocloud promote --organisation <organisation_name> --app-service <app_service
 
 If there is no version existing already, you will see an error message.
 
+### Connecting to your enterprise Cosmocloud Deploy instance
+
+If you are using an enterprise instance of Cosmocloud Deploy, you can connect to it by setting the `--server-url / -s` parameter in the commands above. For example:
+
+```sh
+cosmocloud login --username <username> --password <password> --server-url <your_cosmocloud_deploy_backend_url>
+```
+
 ## Help and Support
 
 If you need help or support, please contact us at [contact@cosmocloud.io](mailto:contact@cosmocloud.io).
