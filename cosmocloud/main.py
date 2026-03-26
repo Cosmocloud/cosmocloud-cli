@@ -167,7 +167,7 @@ def list_app_services(organisation, server_url):
     org_id = get_entity(response["data"], organisation)
 
     response = call_api(
-        f"/orgs/{org_id}/app-services", "GET", data={}, server_url=server_url
+        f"/orgs/{org_id}/app-services?limit=1000", "GET", data={}, server_url=server_url
     )
     for app_service in response["data"]:
         click.echo(f"{app_service['name']}: {app_service['status']}")
@@ -193,7 +193,7 @@ def list_releases(organisation, app_service, server_url):
     org_id = get_entity(response["data"], organisation)
 
     response = call_api(
-        f"/orgs/{org_id}/app-services", "GET", data={}, server_url=server_url
+        f"/orgs/{org_id}/app-services?limit=1000", "GET", data={}, server_url=server_url
     )
     app_service_id = get_entity(response["data"], app_service)
 
@@ -238,7 +238,7 @@ def release(organisation, app_service, version, environment, server_url):
     org_id = get_entity(response["data"], organisation)
 
     response = call_api(
-        f"/orgs/{org_id}/app-services", "GET", data={}, server_url=server_url
+        f"/orgs/{org_id}/app-services?limit=1000", "GET", data={}, server_url=server_url
     )
     app_service_id = get_entity(response["data"], app_service)
 
@@ -283,7 +283,7 @@ def promote(organisation, app_service, version, environment, server_url):
     org_id = get_entity(response["data"], organisation)
 
     response = call_api(
-        f"/orgs/{org_id}/app-services", "GET", data={}, server_url=server_url
+        f"/orgs/{org_id}/app-services?limit=1000", "GET", data={}, server_url=server_url
     )
     app_service_id = get_entity(response["data"], app_service)
 
